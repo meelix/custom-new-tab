@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="theme-color" content="#334">
+    <link rel="icon" href="./favicon.ico" sizes="any">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+
+    <title>Clock</title>
+    <style>
+        :root {
+            --page-background: #334;
+            --ink: #dec;
+            --ink-accent: #cd8;
+        }
+        html, body {height: 100%;}
+        body {
+            background-color: var(--page-background);
+            margin: 0;
+            display: flex;
+        }
+        svg {
+            max-width: 50vmin;
+            max-height: 50vmin;
+        }
+        svg path {
+            opacity: .02;
+            transition: opacity .5s;
+        }
+        #seg {
+            display: none;
+        }
+        
+        #time {
+            display: flex;
+            margin: auto;
+            padding: 0 max(10vw,35px)
+        }
+        #time > * + * {
+            margin-left: max(4vmin,.5rem);
+        }
+        #time svg {
+            margin: 1vmin;
+        }
+        #hour, #min, #sec {
+            display: flex;
+        }
+        @media (min-width: 1200px) {
+            #time {
+                padding: 0 20vw
+            }
+        }
+    </style>
+</head>
+<body>
+    <svg id="seg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 167.3 297.4" fill="var(--ink-accent)"><g transform="scale(1.67096)"><path class="el_0" d="M29.6 0C20.2 0 12 4.3 6.6 11L29 37.7v-3.3c0-4.7 3.9-8.6 8.6-8.6h25c4.8 0 8.7 3.9 8.7 8.6v3.2l22.3-26.5A29.5 29.5 0 0 0 70.6 0Z"/><path class="el_1" d="M95 12.7 71.3 40.6v43.6l28.7-34V29.5c0-6.3-1.9-12.1-5.2-16.9z"/><path class="el_2" d="m100.1 53.1-28.7 34v.6l28.7 34z"/><path class="el_3" d="M71.4 90.7v43.6L96 163.5c2.6-4.4 4.1-9.6 4.1-15v-23.8z"/><path class="el_4" d="M29.1 137.2 5.3 165.3A29.5 29.5 0 0 0 29.6 178h41c10.1 0 19-5 24.4-12.8l-23.6-28v6.7c0 4.8-3.9 8.6-8.7 8.6h-25a8.6 8.6 0 0 1-8.6-8.6z"/><path class="el_5" d="M29.1 90.6 0 125v23.4c0 5.6 1.6 10.8 4.2 15.2l25-29.4Z"/><path class="el_6" d="M0 52.8V122l29.1-34.4v-.3z"/><path class="el_7" d="M5.4 12.6a29.4 29.4 0 0 0-5.4 17v20.2l29.1 34.5V40.7Z"/><path class="el_8" d="M50.2 109.2 31.7 87.4l18.5-21.8 18.4 21.8Z"/><path class="el_9" d="M31.3 85V43.2l17.6 20.9z"/><path class="el_10" d="m69.4 85.3-18-21.2 18-21.2Z"/><path class="el_11" d="m69.4 132-18-21.3 18-21.2Z"/><path class="el_12" d="M31.3 131.6V89.8l17.6 20.9z"/></g></svg>
+    <div id="time">
+        <div id="hour"></div>
+        <div id="min"></div>
+        <div id="sec"></div>
+        
+    </div>
+    <script>
+        const lookup =v=> {switch (v) {
+            case 0: return 0xFFA8;
+            case 1: return 0x7020;
+            case 2: return 0xCCA8;
+            case 3: return 0xD8B0;
+            case 4: return 0x71E0;
+            case 5: return 0x99D0;
+            case 6: return 0x5CB8;
+            case 7: return 0xC4A8;
+            case 8: return 0xDDF8;
+            case 9: return 0xC5E8;
+        }};
+
+        let hour0 = document.getElementById("seg").cloneNode(true);
+        hour0.removeAttribute("id");
+        let hour1 = document.getElementById("seg").cloneNode(true);
+        hour1.removeAttribute("id");
+        document.querySelector("#hour").append(hour0);
+        document.querySelector("#hour").append(hour1);
+
+        let min0 = document.getElementById("seg").cloneNode(true);
+        min0.removeAttribute("id");
+        let min1 = document.getElementById("seg").cloneNode(true);
+        min1.removeAttribute("id");
+        document.querySelector("#min").append(min0);
+        document.querySelector("#min").append(min1);
+
+        let sec0 = document.getElementById("seg").cloneNode(true);
+        sec0.removeAttribute("id");
+        let sec1 = document.getElementById("seg").cloneNode(true);
+        sec1.removeAttribute("id");
+        document.querySelector("#sec").append(sec0);
+        document.querySelector("#sec").append(sec1);
+
+        const draw =(hex, el)=> [...(hex>>>0).toString(2).padStart(16, '0')].forEach((a,i)=>{i<13&&(el.querySelector(`.el_${i}`).style.opacity=a==1?1:0.02)});
+
+        function startTime() {
+            const today = new Date();
+            let h = today.getHours();
+            let m = today.getMinutes();
+            let s = today.getSeconds();
+            h = checkTime(h);
+            m = checkTime(m);
+            s = checkTime(s);
+
+            draw(lookup(parseInt([...h.toString()][0])),hour0);
+            draw(lookup(parseInt([...h.toString()][1])),hour1);
+
+            draw(lookup(parseInt([...m.toString()][0])),min0);
+            draw(lookup(parseInt([...m.toString()][1])),min1);
+
+            draw(lookup(parseInt([...s.toString()][0])),sec0);
+            draw(lookup(parseInt([...s.toString()][1])),sec1);
+
+            setTimeout(startTime, 1000);
+        }
+        startTime();
+
+        function checkTime(i) {
+            if (i < 10) {i = "0" + i};
+            return i;
+        }
+    </script>
+</body>
+</html>
